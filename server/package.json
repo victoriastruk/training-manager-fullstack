@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "date-fns": "^4.1.0",
     "express": "^5.1.0",
     "http-errors": "^2.0.0",
     "nodemon": "^3.1.10",
@@ -22,6 +23,7 @@
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.1",
     "mocha": "^11.7.1",
-    "sequelize-cli": "^6.6.3"
+    "sequelize-cli": "^6.6.3",
+    "supertest": "^7.1.1"
   }
 }

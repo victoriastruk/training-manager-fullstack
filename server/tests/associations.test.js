@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const { sequelize, User, Training, Registration } = require('../models');
+const { sequelize, User, Training, UserTraining } = require('../models');
+const { users, trainings, usersTrainings } = require('./helpers/testData');
 
 chai.use(chaiAsPromised);
 
@@ -9,60 +10,49 @@ const expect = chai.expect;
 describe('Model Associations', function () {
   before(async () => {
     await sequelize.sync({ force: true });
+    await User.bulkCreate(users);
+    await Training.bulkCreate(trainings);
+    await UserTraining.bulkCreate(usersTrainings);
   });
 
-  it('should associate a trainer with many trainings', async () => {
-    const trainer = await User.create({
-      firstName: 'Alice',
-      lastName: 'Trainer',
-      email: 'alice@example.com',
-      role: 'trainer',
+  describe('Trainer -> Trainings (hasMany)', () => {
+    it('should associate a trainer with many trainings', async () => {
+      const trainer = await User.findOne({
+        where: { email: 'diana.trainer@example.com' },
+      });
+      const trainingsGiven = await trainer.getTrainingGiven();
+      expect(trainingsGiven).to.have.lengthOf(2);
     });
-
-    await Training.create({
-      title: 'JS Basics',
-      description: 'Learn JS',
-      date: new Date(Date.now() + 86400000),
-      location: 'Room 1',
-      trainerId: trainer.id,
-    });
-
-    await Training.create({
-      title: 'React Intro',
-      description: 'Learn React',
-      date: new Date(Date.now() + 172800000),
-      location: 'Room 2',
-      trainerId: trainer.id,
-    });
-
-    const trainings = await trainer.getTrainingGiven();
-    expect(trainings).to.have.lengthOf(2);
   });
 
-  it('should associate a participant with a training through registration', async () => {
-    const participant = await User.create({
-      firstName: 'Bob',
-      lastName: 'Participant',
-      email: 'bob@example.com',
-      role: 'participant',
+  describe('Participant -> Trainings (many-to-many via UserTraining', () => {
+    it('should associate a participant with a training through users_trainings', async () => {
+      const participant = await User.findOne({
+        where: { email: 'charlie.participant@example.com' },
+      });
+
+      const trainingsAttended = await participant.getTrainingsAttended();
+      expect(trainingsAttended).to.be.an('array').that.is.not.empty;
+      const titles = trainingsAttended.map((t) => t.title);
+      expect(titles).to.include('JS Basics');
     });
+  });
+
+  it('should find participants for a training', async () => {
     const training = await Training.findOne({
       where: { title: 'JS Basics' },
     });
-    await participant.addTrainingsAttended(training);
+    const participants = await training.getParticipants();
 
-    const userTrainigs = await participant.getTrainingsAttended();
-    expect(userTrainigs).to.have.lengthOf(1);
-    expect(userTrainigs[0].title).to.equal('JS Basics');
+    expect(participants).to.have.an('array').that.is.not.empty;
+
+    const emails = participants.map((p) => p.email);
+    expect(emails).to.include('charlie.participant@example.com');
   });
 
-  it('should find users for a training via registration', async () => {
-    const training = await Training.findOne({
-      where: { title: 'JS Basics' },
-    });
-    const users = await training.getParticipants();
-
-    expect(users).to.have.lengthOf(1);
-    expect(users[0].email).to.equal('bob@example.com');
+  after(async () => {
+    await UserTraining.destroy({ where: {} });
+    await Training.destroy({ where: {} });
+    await User.destroy({ where: {} });
   });
 });

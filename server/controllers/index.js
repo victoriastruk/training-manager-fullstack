@@ -1,3 +1,2 @@
 module.exports.usersController = require('./usersController');
-module.exports.trainigsController = require('./trainingsController');
-module.exports.registersController = require('./registersController');
+module.exports.trainingsController = require('./trainingsController');

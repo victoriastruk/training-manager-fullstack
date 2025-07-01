@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Training.belongsToMany(models.User, {
         as: 'participants',
-        through: models.Registration,
+        through: models.UserTraining,
         foreignKey: 'trainingId',
         otherKey: 'userId',
         onDelete: 'CASCADE',
@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       location: {
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      trainerId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },

@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.belongsToMany(models.Training, {
         as: 'trainingsAttended',
-        through: models.Registration,
+        through: models.UserTraining,
         foreignKey: 'userId',
         otherKey: 'trainingId',
         onDelete: 'CASCADE',
