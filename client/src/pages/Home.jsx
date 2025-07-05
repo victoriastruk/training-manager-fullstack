@@ -1,4 +1,4 @@
-import TrainingCard from "../components/TrainingCard";
+import TrainingCard from '../components/TrainingCard';
 
 function Home() {
   return (

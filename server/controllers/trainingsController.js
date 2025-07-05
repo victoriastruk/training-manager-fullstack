@@ -30,7 +30,6 @@ module.exports.getTraining = async (req, res, next) => {
 
   try {
     const foundTrainings = await Training.findAll({
-      raw: true,
       where: dateFilter || {},
       limit,
       offset,
@@ -45,6 +44,27 @@ module.exports.getTraining = async (req, res, next) => {
     });
 
     res.status(200).send({ data: foundTrainings });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.getTrainingById = async (req, res, next) => {
+  const { trainingId } = req.params;
+
+  try {
+    const foundTraining = await Training.findByPk(trainingId, {
+      include: [
+        {
+          model: User,
+          as: 'trainer',
+          attributes: ['firstName', 'lastName', 'email'],
+        },
+      ],
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
+    });
+
+    res.status(200).send({ data: foundTraining });
   } catch (err) {
     next(err);
   }
@@ -89,6 +109,40 @@ module.exports.deleteTraining = async (req, res, next) => {
       return next(createHttpError(404, 'Training not found'));
     }
     res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.registerUserToTraining = async (req, res, next) => {
+  const { trainingId } = req.params;
+  const { firstName, lastName, email } = req.body;
+  try {
+    const [user] = await User.findOrCreate({
+      where: { email },
+      defaults: {
+        firstName,
+        lastName,
+        email,
+        role: 'participant',
+      },
+    });
+
+    const existing = await user.getTrainingsAttended({
+      where: { id: trainingId },
+    });
+
+    if (existing.length > 0) {
+      return res.status(409).send({
+        message: 'You are already registered for this training',
+      });
+    }
+    await user.addTrainingsAttended(trainingId);
+
+    return res.status(201).send({
+      message: 'Successfully registered for the training',
+      userId: user.id,
+    });
   } catch (err) {
     next(err);
   }

@@ -14,6 +14,12 @@ trainingsRouter
 
 trainingsRouter
   .route('/:trainingId')
+  .get(trainingsController.getTrainingById)
   .patch(trainingsController.updateTraining)
   .delete(trainingsController.deleteTraining);
+
+trainingsRouter
+  .route('/:trainingId/registration')
+  .post(trainingsController.registerUserToTraining);
+
 module.exports = trainingsRouter;

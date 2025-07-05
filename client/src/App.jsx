@@ -1,19 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import Home from './pages/Home'
-import './App.css'
-import TrainingRegister from './pages/TrainingRegister'
+import { Link, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import TrainingRegistration from './pages/TrainingRegistration';
+import TrainingCreate from './pages/TrainingCreate';
+import NotFound from './pages/NotFound';
 
 function App() {
-  
-
   return (
-    <>
-   {/* <Home/> */}
-   <TrainingRegister/>
-    </>
-  )
+    <div className="p-4">
+      <nav className="space-x-4">
+        <Link to="/">Trainings</Link>
+        <Link to="/create-training">Add trining</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="trainings/:id/registration"
+          element={<TrainingRegistration />}
+        />
+        <Route path="/create-training" element={<TrainingCreate />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;

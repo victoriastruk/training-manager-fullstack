@@ -1,0 +1,11 @@
+POST http://localhost:5000/api/trainings/2/registration
+Content-Type: application/json
+
+{
+   "firstName": "Inna",
+   "lastName": "Zarechna",
+   "email": "nanovika2@fmail.com"
+}
+
+###
+GET http://localhost:5000/api/trainings/1/registration
