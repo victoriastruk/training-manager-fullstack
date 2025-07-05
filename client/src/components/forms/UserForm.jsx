@@ -1,16 +1,24 @@
-import { useParams } from 'react-router';
+import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
 import { Formik, Form } from 'formik';
 import { connect } from 'react-redux';
 import Input from './Input';
 import { registerOnTrainingThunk } from '../../store/slices/trainingsSlice';
 
-function UserForm({ registerOnTraining }) {
+function UserForm({ registrationResult, registerOnTraining }) {
+  const navigate = useNavigate();
   const { id: trainingId } = useParams();
   const initialValues = {
     firstName: '',
     lastName: '',
     email: '',
   };
+
+  useEffect(() => {
+    if (registrationResult?.userId) {
+      navigate(`/users/${registrationResult.userId}/trainings`);
+    }
+  }, [registrationResult]);
 
   const handleSubmit = async (values, formik) => {
     await registerOnTraining({ id: trainingId, values });
@@ -51,9 +59,9 @@ function UserForm({ registerOnTraining }) {
     </Formik>
   );
 }
+const mapStateToProps = ({ trainingsData }) => trainingsData;
 
 const mapDispatchToProps = (dispatch) => ({
-  registerOnTraining: (id, values) =>
-    dispatch(registerOnTrainingThunk(id, values)),
+  registerOnTraining: (payload) => dispatch(registerOnTrainingThunk(payload)),
 });
-export default connect(null, mapDispatchToProps)(UserForm);
+export default connect(mapStateToProps, mapDispatchToProps)(UserForm);

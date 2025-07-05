@@ -3,10 +3,11 @@ import Home from './pages/Home';
 import TrainingRegistration from './pages/TrainingRegistration';
 import TrainingCreate from './pages/TrainingCreate';
 import NotFound from './pages/NotFound';
+import UserTrainingsPage from './pages/UserTrainingsPage';
 
 function App() {
   return (
-    <div className="p-4">
+    <div className="bg-gray-100 p-4">
       <nav className="space-x-4">
         <Link to="/">Trainings</Link>
         <Link to="/create-training">Add trining</Link>
@@ -19,6 +20,7 @@ function App() {
           element={<TrainingRegistration />}
         />
         <Route path="/create-training" element={<TrainingCreate />} />
+        <Route path="/users/:id/trainings" element={<UserTrainingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

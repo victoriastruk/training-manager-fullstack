@@ -6,6 +6,8 @@ const TRAINING_SLICE_NAME = 'trainings';
 const initialState = {
   trainings: [],
   training: null,
+  userTrainings: [],
+  registrationResult: null,
   isFetching: false,
   error: null,
 };
@@ -50,6 +52,29 @@ export const registerOnTrainingThunk = createAsyncThunk(
   }
 );
 
+export const getUserTrainingsThunk = createAsyncThunk(
+  `/get/${TRAINING_SLICE_NAME}/usersId`,
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await API.getUserTrainings(id);
+      return data;
+    } catch (err) {
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
+
+export const unsubscribeUserFromTrainingThunk = createAsyncThunk(
+  `delete/${TRAINING_SLICE_NAME}/unsubscribe`,
+  async ({ id, trainingId }, { rejectWithValue }) => {
+    try {
+      const { data } = await API.unsubscribeUserFromTraining(id, trainingId);
+      return { id, trainingId };
+    } catch (err) {
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
 const trainingsSlice = createSlice({
   name: TRAINING_SLICE_NAME,
   initialState,
@@ -86,13 +111,47 @@ const trainingsSlice = createSlice({
       state.error = null;
     });
     builder.addCase(registerOnTrainingThunk.fulfilled, (state, { payload }) => {
-      state.training = payload;
+      state.registrationResult = payload;
       state.isFetching = false;
     });
     builder.addCase(registerOnTrainingThunk.rejected, (state, { payload }) => {
       state.error = payload;
       state.isFetching = false;
     });
+
+    builder.addCase(getUserTrainingsThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(getUserTrainingsThunk.fulfilled, (state, { payload }) => {
+      state.userTrainings = payload;
+      state.isFetching = false;
+    });
+    builder.addCase(getUserTrainingsThunk.rejected, (state, { payload }) => {
+      state.error = payload;
+      state.isFetching = false;
+    });
+
+    builder.addCase(unsubscribeUserFromTrainingThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(
+      unsubscribeUserFromTrainingThunk.fulfilled,
+      (state, { payload }) => {
+        state.userTrainings = state.userTrainings.filter(
+          (t) => t.id !== payload.trainingId
+        );
+        state.isFetching = false;
+      }
+    );
+    builder.addCase(
+      unsubscribeUserFromTrainingThunk.rejected,
+      (state, { payload }) => {
+        state.error = payload;
+        state.isFetching = false;
+      }
+    );
   },
 });
 

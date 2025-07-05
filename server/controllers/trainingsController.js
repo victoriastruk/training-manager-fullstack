@@ -147,3 +147,4 @@ module.exports.registerUserToTraining = async (req, res, next) => {
     next(err);
   }
 };
+

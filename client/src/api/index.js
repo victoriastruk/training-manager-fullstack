@@ -10,3 +10,8 @@ export const registerOnTraining = (id, data) =>
 
 export const getUserTrainings = (id) =>
   httpClient.get(`/users/${id}/trainings`);
+
+export const unsubscribeUserFromTraining = (userId, trainingId) =>
+  httpClient.delete(`/users/${userId}/trainings`, {
+    data: { trainingId },
+  });

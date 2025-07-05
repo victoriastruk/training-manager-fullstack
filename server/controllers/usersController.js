@@ -1,5 +1,5 @@
 const createHttpError = require('http-errors');
-const { User, Training } = require('../models');
+const { User, Training, UserTraining } = require('../models');
 
 module.exports.getUserTrainings = async (req, res, next) => {
   const { userId } = req.params;
@@ -9,7 +9,7 @@ module.exports.getUserTrainings = async (req, res, next) => {
         model: Training,
         as: 'trainingsAttended',
         through: { attributes: [] },
-        attributes: ['title', 'description', 'date', 'location'],
+        attributes: ['id', 'title', 'description', 'date', 'location'],
         exclude: ['createdAt', 'updatedAt'],
       },
     });
@@ -19,6 +19,22 @@ module.exports.getUserTrainings = async (req, res, next) => {
     }
 
     return res.status(200).send(user.trainingsAttended);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.deleteUserFromTraining = async (req, res, next) => {
+  const { userId } = req.params;
+  const { trainingId } = req.body;
+  try {
+    const deletedCount = await UserTraining.destroy({
+      where: { userId, trainingId },
+    });
+    if (!deletedCount) {
+      return next(createHttpError(404, 'User not found'));
+    }
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

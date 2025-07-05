@@ -8,4 +8,12 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5000/api/trainings/1/registration
+GET http://localhost:5000/api/users/11/trainings
+
+###
+DELETE http://localhost:5000/api/users/11/trainings
+Content-Type: application/json
+
+{
+   "trainingId": 1
+}
