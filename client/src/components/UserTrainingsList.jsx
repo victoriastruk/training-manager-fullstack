@@ -39,7 +39,10 @@ function UserTrainingsList({
                 className="bg-white rounded-xl shadow p-4 flex flex-col justify-between"
               >
                 <div>
-                  <h2 className="text-xl font-semibold mb-2">{t.title}</h2>
+                  <h2 className="text-xl font-semibold mb-1">{t.title}</h2>
+                    <p className="text-gray-700 mb-4">
+                   {t.description}
+                  </p>
                   <p className="text-gray-700 mb-1">
                     <span className="font-medium">When: </span>
                     <strong>

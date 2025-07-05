@@ -1,6 +1,22 @@
 const createHttpError = require('http-errors');
 const { User, Training, UserTraining } = require('../models');
 
+module.exports.getTrainers = async (req, res, next) => {
+  try {
+    const foundTrainers = await User.findAll({
+      where: {
+        role: 'trainer',
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+    });
+    return res.status(200).send(foundTrainers);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports.getUserTrainings = async (req, res, next) => {
   const { userId } = req.params;
   try {

@@ -1,14 +1,21 @@
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getTrainingsThunk } from '../store/slices/trainingsSlice';
+import {
+  getTrainingsThunk,
+  deleteTrainingThunk,
+} from '../store/slices/trainingsSlice';
 import { useEffect } from 'react';
 
-function TrainingCard({ trainings, getTrainings }) {
+function TrainingCard({ trainings, getTrainings, deleteTraining }) {
   useEffect(() => {
     getTrainings();
   }, [getTrainings]);
 
+  const handleDelete = async (id) => {
+    await deleteTraining(id);
+  };
+  
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 cursor-pointer">
       {trainings.map((t) => {
@@ -35,12 +42,26 @@ function TrainingCard({ trainings, getTrainings }) {
                 <p className="text-gray-600 mt-1">
                   Coach: {t.trainer.firstName} {t.trainer.lastName}
                 </p>
-                <Link
-                  to={`trainings/${t.id}/registration`}
-                  className="bg-[#0056d2] text-white px-6 py-2 rounded hover:bg-[#0e71eb] text-sm mt-auto self-start"
-                >
-                  Register
-                </Link>
+                <div className="flex gap-2 mt-auto">
+                  <Link
+                    to={`trainings/${t.id}/registration`}
+                    className="bg-[#0056d2] text-white px-4 py-2 rounded hover:bg-[#0e71eb] text-sm"
+                  >
+                    Register
+                  </Link>
+                  <button
+                    onClick={() => navigate(`/trainings/${t.id}/edit`)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(t.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -52,5 +73,6 @@ function TrainingCard({ trainings, getTrainings }) {
 const mapStateToProps = ({ trainingsData }) => trainingsData;
 const mapDispatchToProps = (dispatch) => ({
   getTrainings: () => dispatch(getTrainingsThunk()),
+  deleteTraining: (id) => dispatch(deleteTrainingThunk(id)),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(TrainingCard);

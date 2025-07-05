@@ -75,6 +75,19 @@ export const unsubscribeUserFromTrainingThunk = createAsyncThunk(
     }
   }
 );
+
+export const deleteTrainingThunk = createAsyncThunk(
+  `${TRAINING_SLICE_NAME}/delete`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      await API.deleteTraining(payload);
+      return payload;
+    } catch (err) {
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
+
 const trainingsSlice = createSlice({
   name: TRAINING_SLICE_NAME,
   initialState,
@@ -152,6 +165,19 @@ const trainingsSlice = createSlice({
         state.isFetching = false;
       }
     );
+
+    builder.addCase(deleteTrainingThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(deleteTrainingThunk.fulfilled, (state, { payload }) => {
+      state.isFetching = false;
+      state.trainings = state.trainings.filter((t) => t.id !== payload);
+    });
+    builder.addCase(deleteTrainingThunk.rejected, (state, { payload }) => {
+      state.error = payload;
+      state.isFetching = false;
+    });
   },
 });
 
