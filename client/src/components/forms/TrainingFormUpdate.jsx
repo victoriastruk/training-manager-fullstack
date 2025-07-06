@@ -1,31 +1,60 @@
 import { Formik, Form } from 'formik';
+import { format } from 'date-fns';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Input from './Input';
+import {
+  getTrainingByIdThunk,
+  updateTrainingThunk,
+} from '../../store/slices/trainingsSlice';
 import { getTrainersThunk } from '../../store/slices/usersSlice';
-import { createTrainingThunk } from '../../store/slices/trainingsSlice';
 
-function TrainingFormCreate({ getTrainers, trainers, createTraining }) {
-  const initialValues = {
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-    trainerId: '',
-  };
+const formatDateForInput = (dateStr) => {
+  if (!dateStr) return '';
+  return format(new Date(dateStr), "yyyy-MM-dd'T'HH:mm");
+};
 
-  const handleSubmit = async (values, formik) => {
-    await createTraining(values);
-    formik.resetForm();
-  };
+function TrainingFormUpdate({
+  getTrainingById,
+  training,
+  getTrainers,
+  trainers,
+  updateTraining,
+}) {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  useEffect(() => {
+    getTrainingById(id);
+  }, [getTrainingById, id]);
 
   useEffect(() => {
     getTrainers();
   }, []);
 
+  if (!training || trainers.length === 0) return <div>Loading...</div>;
+
+  const initialValues = {
+    title: training?.title || '',
+    description: training?.description || '',
+    date: formatDateForInput(training?.date),
+    location: training?.location || '',
+    trainerId: training?.trainerId || '',
+  };
+
+  const handleSubmit = async (values, formik) => {
+    await updateTraining({ id: training.id, data: values });
+    navigate('/');
+  };
+
   return (
     <div className="w-full max-w-xl">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
         {(formikProps) => (
           <Form className="space-y-4">
             <Input
@@ -80,7 +109,7 @@ function TrainingFormCreate({ getTrainers, trainers, createTraining }) {
               type="submit"
               className="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Create
+              Edit
             </button>
           </Form>
         )}
@@ -88,9 +117,13 @@ function TrainingFormCreate({ getTrainers, trainers, createTraining }) {
     </div>
   );
 }
-const mapStateToProps = ({ usersData }) => usersData;
-const mapDispatchToProps = (dispatch) => ({
-  getTrainers: () => dispatch(getTrainersThunk()),
-  createTraining: (payload) => dispatch(createTrainingThunk(payload)),
+const mapStateToProps = (state) => ({
+  training: state.trainingsData.training,
+  trainers: state.usersData.trainers,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(TrainingFormCreate);
+const mapDispatchToProps = (dispatch) => ({
+  getTrainingById: (id) => dispatch(getTrainingByIdThunk(id)),
+  getTrainers: () => dispatch(getTrainersThunk()),
+  updateTraining: (id, data) => dispatch(updateTrainingThunk(id, data)),
+});
+export default connect(mapStateToProps, mapDispatchToProps)(TrainingFormUpdate);

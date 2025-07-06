@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   getTrainingsThunk,
@@ -8,6 +8,7 @@ import {
 import { useEffect } from 'react';
 
 function TrainingCard({ trainings, getTrainings, deleteTraining }) {
+  const navigate = useNavigate();
   useEffect(() => {
     getTrainings();
   }, [getTrainings]);
@@ -15,7 +16,7 @@ function TrainingCard({ trainings, getTrainings, deleteTraining }) {
   const handleDelete = async (id) => {
     await deleteTraining(id);
   };
-  
+
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 cursor-pointer">
       {trainings.map((t) => {
@@ -42,7 +43,7 @@ function TrainingCard({ trainings, getTrainings, deleteTraining }) {
                 <p className="text-gray-600 mt-1">
                   Coach: {t.trainer.firstName} {t.trainer.lastName}
                 </p>
-                <div className="flex gap-2 mt-auto">
+                <div className="flex flex-wrap gap-2 mt-auto">
                   <Link
                     to={`trainings/${t.id}/registration`}
                     className="bg-[#0056d2] text-white px-4 py-2 rounded hover:bg-[#0e71eb] text-sm"

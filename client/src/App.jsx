@@ -2,8 +2,9 @@ import { Link, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import TrainingRegistration from './pages/TrainingRegistration';
 import TrainingCreate from './pages/TrainingCreate';
-import NotFound from './pages/NotFound';
+import TrainingUpdate from './pages/TrainingUpdate';
 import UserTrainingsPage from './pages/UserTrainingsPage';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             element={<TrainingRegistration />}
           />
           <Route path="/create-training" element={<TrainingCreate />} />
+          <Route path="/trainings/:id/edit" element={<TrainingUpdate />} />
           <Route path="/users/:id/trainings" element={<UserTrainingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -12,6 +12,34 @@ const initialState = {
   error: null,
 };
 
+export const createTrainingThunk = createAsyncThunk(
+  `${TRAINING_SLICE_NAME}/create`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      const {
+        data: { data },
+      } = await API.createTraining(payload);
+      return data;
+    } catch (err) {
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
+
+export const updateTrainingThunk = createAsyncThunk(
+  `${TRAINING_SLICE_NAME}/update`,
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const {
+        data: { data: updated },
+      } = await API.updateTraining(id, data);
+      return updated;
+    } catch (err) {
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
+
 export const getTrainingsThunk = createAsyncThunk(
   `/get/${TRAINING_SLICE_NAME}`,
   async (payload, { rejectWithValue }) => {
@@ -165,6 +193,35 @@ const trainingsSlice = createSlice({
         state.isFetching = false;
       }
     );
+
+    builder.addCase(createTrainingThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(createTrainingThunk.fulfilled, (state, { payload }) => {
+      state.isFetching = false;
+      state.trainings = state.trainings.filter((t) => t.id !== payload);
+    });
+    builder.addCase(createTrainingThunk.rejected, (state, { payload }) => {
+      state.error = payload;
+      state.isFetching = false;
+    });
+
+    builder.addCase(updateTrainingThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(updateTrainingThunk.fulfilled, (state, { payload }) => {
+      state.isFetching = false;
+      const index = state.trainings.findIndex((t) => t.id === payload.id);
+      if (index !== -1) {
+        state.trainings[index] = payload;
+      }
+    });
+    builder.addCase(updateTrainingThunk.rejected, (state, { payload }) => {
+      state.error = payload;
+      state.isFetching = false;
+    });
 
     builder.addCase(deleteTrainingThunk.pending, (state) => {
       state.isFetching = true;

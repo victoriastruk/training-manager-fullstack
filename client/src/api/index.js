@@ -18,4 +18,9 @@ export const unsubscribeUserFromTraining = (userId, trainingId) =>
 
 export const getTrainers = () => httpClient.get(`/users?role=trainer`);
 
+export const createTraining = (data) => httpClient.post(`/trainings`, data);
+
+export const updateTraining = (id, data) =>
+  httpClient.patch(`/trainings/${id}`, data);
+
 export const deleteTraining = (id) => httpClient.delete(`/trainings/${id}`);
