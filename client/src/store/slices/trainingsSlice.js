@@ -8,6 +8,7 @@ const initialState = {
   training: null,
   userTrainings: [],
   registrationResult: null,
+  filter: 'all',
   isFetching: false,
   error: null,
 };
@@ -42,14 +43,17 @@ export const updateTrainingThunk = createAsyncThunk(
 
 export const getTrainingsThunk = createAsyncThunk(
   `/get/${TRAINING_SLICE_NAME}`,
-  async (payload, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
+      const filter = getState().trainingsData.filter;
       const {
         data: { data },
-      } = await API.getTrainings();
+      } = await API.getTrainings(filter);
       return data;
     } catch (err) {
-      return rejectWithValue({ errors: err.response.data });
+      return rejectWithValue({
+        errors: err.response?.data || { message: err.message },
+      });
     }
   }
 );
@@ -119,7 +123,11 @@ export const deleteTrainingThunk = createAsyncThunk(
 const trainingsSlice = createSlice({
   name: TRAINING_SLICE_NAME,
   initialState,
-
+  reducers: {
+    setFilter(state, action) {
+      state.filter = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getTrainingsThunk.pending, (state) => {
       state.isFetching = true;
@@ -237,7 +245,7 @@ const trainingsSlice = createSlice({
     });
   },
 });
-
+export const { setFilter } = trainingsSlice.actions;
 const { reducer } = trainingsSlice;
 
 export default reducer;

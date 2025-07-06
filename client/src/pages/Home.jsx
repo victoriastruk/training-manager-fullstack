@@ -1,3 +1,4 @@
+import SelectFilter from '../components/SelectFilter';
 import TrainingCard from '../components/TrainingCard';
 
 function Home() {
@@ -6,9 +7,11 @@ function Home() {
       <h1 className="text-3xl font-bold mb-2 text-center">
         Upcoming Trainings
       </h1>
-      <p className="text-gray-600 mb-6 text-center">
-        Explore and register for hands-on workshops to boost your skills.
-      </p>
+
+      <div className="flex justify-center mb-6">
+        <SelectFilter />
+      </div>
+
       <TrainingCard />
     </div>
   );
