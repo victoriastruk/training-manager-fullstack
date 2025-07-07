@@ -135,6 +135,9 @@ const trainingsSlice = createSlice({
   name: TRAINING_SLICE_NAME,
   initialState,
   reducers: {
+    clearRegistrationResult: (state) => {
+      state.registrationResult = null;
+    },
     setFilter(state, action) {
       state.filter = action.payload;
       if (action.payload !== 'other') {
@@ -225,7 +228,7 @@ const trainingsSlice = createSlice({
     });
     builder.addCase(createTrainingThunk.fulfilled, (state, { payload }) => {
       state.isFetching = false;
-     state.trainings = [...state.trainings, payload];
+      state.trainings = [...state.trainings, payload];
     });
     builder.addCase(createTrainingThunk.rejected, (state, { payload }) => {
       state.error = payload;
@@ -262,7 +265,7 @@ const trainingsSlice = createSlice({
     });
   },
 });
-export const { setFilter, setCustomDateRange } = trainingsSlice.actions;
+export const { clearRegistrationResult, setFilter, setCustomDateRange } = trainingsSlice.actions;
 const { reducer } = trainingsSlice;
 
 export default reducer;
