@@ -9,6 +9,7 @@ const initialState = {
   userTrainings: [],
   registrationResult: null,
   filter: 'all',
+  customDateRange: null,
   isFetching: false,
   error: null,
 };
@@ -45,10 +46,20 @@ export const getTrainingsThunk = createAsyncThunk(
   `/get/${TRAINING_SLICE_NAME}`,
   async (_, { getState, rejectWithValue }) => {
     try {
-      const filter = getState().trainingsData.filter;
+      const { filter, customDateRange } = getState().trainingsData;
+      const params = {};
+      if (filter && filter !== 'all') {
+        if (filter === 'other' && customDateRange) {
+          params.startDate = customDateRange.startDate;
+          params.endDate = customDateRange.endDate;
+        } else if (filter !== 'other') {
+          params.dateFilter = filter;
+        }
+      }
+
       const {
         data: { data },
-      } = await API.getTrainings(filter);
+      } = await API.getTrainings(params);
       return data;
     } catch (err) {
       return rejectWithValue({
@@ -100,7 +111,7 @@ export const unsubscribeUserFromTrainingThunk = createAsyncThunk(
   `delete/${TRAINING_SLICE_NAME}/unsubscribe`,
   async ({ id, trainingId }, { rejectWithValue }) => {
     try {
-      const { data } = await API.unsubscribeUserFromTraining(id, trainingId);
+      await API.unsubscribeUserFromTraining(id, trainingId);
       return { id, trainingId };
     } catch (err) {
       return rejectWithValue({ errors: err.response.data });
@@ -126,6 +137,12 @@ const trainingsSlice = createSlice({
   reducers: {
     setFilter(state, action) {
       state.filter = action.payload;
+      if (action.payload !== 'other') {
+        state.customDateRange = null;
+      }
+    },
+    setCustomDateRange(state, action) {
+      state.customDateRange = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -208,7 +225,7 @@ const trainingsSlice = createSlice({
     });
     builder.addCase(createTrainingThunk.fulfilled, (state, { payload }) => {
       state.isFetching = false;
-      state.trainings = state.trainings.filter((t) => t.id !== payload);
+     state.trainings = [...state.trainings, payload];
     });
     builder.addCase(createTrainingThunk.rejected, (state, { payload }) => {
       state.error = payload;
@@ -245,7 +262,7 @@ const trainingsSlice = createSlice({
     });
   },
 });
-export const { setFilter } = trainingsSlice.actions;
+export const { setFilter, setCustomDateRange } = trainingsSlice.actions;
 const { reducer } = trainingsSlice;
 
 export default reducer;

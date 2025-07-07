@@ -2,10 +2,14 @@ import axios from 'axios';
 
 const httpClient = axios.create({ baseURL: 'http://localhost:5000/api' });
 
-export const getTrainings = (filter) =>
-  httpClient.get('/trainings', {
-    params: filter !== 'all' ? { dateFilter: filter } : {},
-  });
+// export const getTrainings = (filter) =>
+//   httpClient.get('/trainings', {
+//     params: filter !== 'all' ? { dateFilter: filter } : {},
+//   });
+
+export const getTrainings = (params) =>
+  httpClient.get('/trainings', { params });
+
 export const getTrainingById = (id) => httpClient.get(`/trainings/${id}`);
 
 export const registerOnTraining = (id, data) =>
