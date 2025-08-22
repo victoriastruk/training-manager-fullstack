@@ -5,8 +5,11 @@ const router = require('./routes');
 
 const app = express();
 
-app.use(cors({ orgin: '*' }));
 
+const corsOptions = {
+  origin: ["https://training-manager-fullstack.vercel.app"],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api', router);
